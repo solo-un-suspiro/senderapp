@@ -4,8 +4,10 @@ const fs = require("fs")
 const path = require("path")
 const qrcode = require("qrcode-terminal")
 
-// Get phone number from command line args
+// Get phone number and message from command line args
 const phoneNumber = process.argv[2]
+const message = process.argv[3] || "hola" // Use custom message or default to "hola"
+
 if (!phoneNumber) {
   console.error("Phone number is required")
   process.exit(1)
@@ -18,11 +20,11 @@ if (!fs.existsSync(SESSION_DIR)) {
 }
 
 async function connectToWhatsApp() {
-  try {
-    // Get authentication state
-    const authState = await useMultiFileAuthState(SESSION_DIR)
-    const { state, saveCreds } = authState
+  // Get authentication state
+  const authState = await useMultiFileAuthState(SESSION_DIR)
+  const { state, saveCreds } = authState
 
+  try {
     // Create WhatsApp socket
     const sock = makeWASocket({
       printQRInTerminal: true,
@@ -59,9 +61,9 @@ async function connectToWhatsApp() {
           // Format the phone number (remove any non-numeric characters)
           const formattedNumber = phoneNumber.replace(/\D/g, "")
 
-          // Send the message
+          // Send the message (using the provided message instead of hardcoded "hola")
           await sock.sendMessage(`${formattedNumber}@s.whatsapp.net`, {
-            text: "hola",
+            text: message,
           })
 
           console.log("Message sent successfully!")

@@ -18,11 +18,14 @@ export async function POST(request) {
   try {
     // Parse request body
     const body = await request.json()
-    const { phoneNumber } = body
+    const { phoneNumber, message } = body
 
     if (!phoneNumber) {
       return NextResponse.json({ error: "Phone number is required" }, { status: 400, headers: corsHeaders })
     }
+
+    // Default message if not provided
+    const messageToSend = message || "hola"
 
     // Use the whatsapp-script.js file that's already in the repository
     const scriptPath = path.join(process.cwd(), "whatsapp-script.js")
@@ -34,7 +37,7 @@ export async function POST(request) {
       let stderrData = ""
 
       // Spawn the process with the arguments as separate items
-      const childProcess = spawn("node", [scriptPath, phoneNumber], {
+      const childProcess = spawn("node", [scriptPath, phoneNumber, messageToSend], {
         timeout: 60000, // 60 second timeout
       })
 
